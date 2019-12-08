@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">QR Sign</string>
+    <string name="title_scan">Scan</string>
+    <string name="title_keys">Keys</string>
+    <string name="permission_camera_denied">QR Sign requires the camera permission to scan QR codes.</string>
+    <string name="message_qr_signed">Message QR-Signed</string>
+    <string name="add_key">Add Key</string>
+    <string name="dismiss">Dismiss</string>
+</resources>

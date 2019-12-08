@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_scan">
+
+    <fragment
+        android:id="@+id/navigation_scan"
+        android:name="danvim.qrsign.ui.scan.ScanFragment"
+        android:label="@string/title_scan"
+        tools:layout="@layout/fragment_scan" />
+
+    <fragment
+        android:id="@+id/navigation_keys"
+        android:name="danvim.qrsign.ui.keys.KeysFragment"
+        android:label="@string/title_keys"
+        tools:layout="@layout/fragment_keys" />
+</navigation>
