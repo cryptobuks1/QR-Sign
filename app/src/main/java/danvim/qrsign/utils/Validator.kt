@@ -1,23 +1,28 @@
 package danvim.qrsign.utils
 
 import android.util.Log
+import com.google.crypto.tink.subtle.Base64
+import com.google.crypto.tink.subtle.Ed25519Sign
 import com.google.crypto.tink.subtle.Ed25519Verify
 import danvim.qrsign.exceptions.InvalidMessageFormatException
 import danvim.qrsign.exceptions.PublicKeyNotFoundException
 import org.jsoup.Jsoup
+import java.lang.Exception
 import java.lang.NullPointerException
 import java.lang.RuntimeException
 import java.net.URL
 import java.security.GeneralSecurityException
 
-class Validator {
+open class Validator(
+    private val pageReader: PageReaderInterface = PageReader()
+) {
     fun getMessage(content: String): SignedMessage {
         val items = content.split('\n')
         if (items.size != 4) {
             throw InvalidMessageFormatException("SignedMessage item length incorrect.")
         }
         val (name, date, publicKeyLocation, signature) = items
-        if (!date.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
+        if (!date.matches(Regex("^\\d{4}-\\d{2}-\\d{2}$"))) {
             throw InvalidMessageFormatException("Date format must be YYYY-MM-DD.")
         }
         val keyType = when {
@@ -34,14 +39,27 @@ class Validator {
         )
     }
 
+    fun validateKeyPair(
+        publicKey: String,
+        privateKey: String
+    ): Boolean {
+        try {
+            val signature = Ed25519Sign(Base64.decode(privateKey)).sign(TEST_MESSAGE)
+            Ed25519Verify(Base64.decode(publicKey)).verify(signature, TEST_MESSAGE)
+        } catch (e: Exception) {
+            return false
+        }
+        return true
+    }
+
     fun validateMessage(
         signedMessage: SignedMessage,
         publicKey: String,
         isVerified: Boolean?
     ): ValidationResult {
         try {
-            Ed25519Verify(publicKey.toByteArray()).verify(
-                signedMessage.signature.toByteArray(),
+            Ed25519Verify(Base64.decode(publicKey)).verify(
+                Base64.decode(signedMessage.signature),
                 signedMessage.message.validator.toByteArray()
             )
         } catch (e: GeneralSecurityException) {
@@ -70,14 +88,14 @@ class Validator {
      */
     private fun scrapeFacebookAbout(pageId: String): ScrapeResult {
         try {
-            val content = get(URL("https://www.facebook.com/$pageId/about"))
+            val content = pageReader.readPage(URL("https://www.facebook.com/$pageId/about"))
             return ScrapeResult(
-                PUBLIC_KEY_REGEX.find(content)!!.groupValues[0],
+                PUBLIC_KEY_REGEX.find(content)!!.groupValues[1],
                 content,
-                FACEBOOK_VERIFIED_REGEX.matches(content)
+                content.contains(FACEBOOK_VERIFIED_STRING)
             )
         } catch (e: RuntimeException /* MalformedURLException IOException NullPointerException*/) {
-            Log.println(Log.ERROR, "QR Sign", e.toString())
+            Log.e("QR Sign", e.toString())
             throw PublicKeyNotFoundException()
         }
     }
@@ -89,20 +107,16 @@ class Validator {
      */
     private fun scrapePage(url: String): ScrapeResult {
         try {
-            val content = get(URL(url))
+            val content = pageReader.readPage(URL(url))
             val dom = Jsoup.parse(content)
             return ScrapeResult(
-                dom.head().getElementsByAttributeValue("meta", "qr-sign")[0]!!.attr("content"),
+                dom.head().selectFirst("meta[name='qr-sign']")!!.attr("content"),
                 content
             )
         } catch (e: NullPointerException) {
-            Log.println(Log.ERROR, "QR Sign", e.toString())
+            Log.e("QR Sign", e.toString())
             throw PublicKeyNotFoundException()
         }
-    }
-
-    private fun get(url: URL): String {
-        return url.readText()
     }
 
     data class ValidationResult(
@@ -117,8 +131,8 @@ class Validator {
     )
 
     companion object {
+        val TEST_MESSAGE = "test message".toByteArray()
         val PUBLIC_KEY_REGEX = Regex("QRSign&lt;([^&;\\s]{44})&gt;")
-        val FACEBOOK_VERIFIED_REGEX =
-            Regex("\\u003Cspan>A blue verification badge confirms that this is an authentic Page for this public figure, media company or brand.\\u003C/span>\n")
+        const val FACEBOOK_VERIFIED_STRING = "\\u003Cspan>A blue verification badge confirms that this is an authentic Page for this public figure, media company or brand.\\u003C/span>\n"
     }
 }

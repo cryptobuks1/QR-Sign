@@ -12,7 +12,8 @@ class TinkTest {
         const val publicKey = "v2BKmzP1yvIFCW0qc48KShXToHgyCo/Now3wnOHgJyY="
         const val privateKey = "henL6au7mGATgCFoVGAZQwzqkeCY8/8d8032TtG+p3w="
         const val message = "Test"
-        const val signature = "UsNhLUPxdgr6Vb0DhsTld9VNY7gBbBhrZ1+3vzMQU7+deo1zxl8GaymS+0wD7ZMTgPyxpkfPQfjuxELlp/W7BA=="
+        const val signature =
+            "UsNhLUPxdgr6Vb0DhsTld9VNY7gBbBhrZ1+3vzMQU7+deo1zxl8GaymS+0wD7ZMTgPyxpkfPQfjuxELlp/W7BA=="
     }
 
     @Test
@@ -23,7 +24,10 @@ class TinkTest {
 
     @Test
     fun verifySignatureMessage() {
-        Ed25519Verify(Base64.decode(publicKey)).verify(Base64.decode(signature), message.toByteArray())
+        Ed25519Verify(Base64.decode(publicKey)).verify(
+            Base64.decode(signature),
+            message.toByteArray()
+        )
     }
 
     @Test

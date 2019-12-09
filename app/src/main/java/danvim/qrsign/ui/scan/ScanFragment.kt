@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.dm7.barcodescanner.zxing.ZXingScannerView
+import java.net.URLDecoder
 
 class ScanFragment : Fragment(), ZXingScannerView.ResultHandler, CoroutineScope {
     private lateinit var scanViewModel: ScanViewModel
@@ -36,12 +37,21 @@ class ScanFragment : Fragment(), ZXingScannerView.ResultHandler, CoroutineScope 
 
     override fun handleResult(rawResult: Result?) {
         val text = rawResult!!.text
-        scanViewModel.text.value = text
+        val urlPartition = text.split("/s?")
+        if (urlPartition.size != 2) {
+            Log.e("QR Sign", "Not a valid code")
+            scanViewModel.message.value = null
+            scanViewModel.validationResult.value = null
+            scanViewModel.foundQRCode.value = true
+            return
+        }
+        val content = URLDecoder.decode(urlPartition[1], "UTF-8")
+        scanViewModel.text.value = content
         launch {
             val (message, validationResult) = withContext(Dispatchers.IO) {
                 val validator = Validator()
                 try {
-                    val message = validator.getMessage(text)
+                    val message = validator.getMessage(content)
                     try {
                         val scrapeResult = validator.scrapePublicKey(message)
                         Pair(
@@ -53,11 +63,11 @@ class ScanFragment : Fragment(), ZXingScannerView.ResultHandler, CoroutineScope 
                             )
                         )
                     } catch (e: PublicKeyNotFoundException) {
-                        Log.println(Log.ERROR, "QR Sign", e.toString())
+                        Log.e("QR Sign", e.toString())
                         Pair(message, null)
                     }
                 } catch (e: InvalidMessageFormatException) {
-                    Log.println(Log.ERROR, "QR Sign", e.toString())
+                    Log.e("QR Sign", e.toString())
                     Pair(null, null)
                 }
             }
