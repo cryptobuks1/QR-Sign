@@ -44,8 +44,8 @@ open class Validator(
         privateKey: String
     ): Boolean {
         try {
-            val signature = Ed25519Sign(Base64.decode(privateKey)).sign(TEST_MESSAGE)
-            Ed25519Verify(Base64.decode(publicKey)).verify(signature, TEST_MESSAGE)
+            val signature = Ed25519Sign(Base64.decode(privateKey)).sign(byteArrayOf())
+            Ed25519Verify(Base64.decode(publicKey)).verify(signature, byteArrayOf())
         } catch (e: Exception) {
             return false
         }
@@ -90,7 +90,7 @@ open class Validator(
         try {
             val content = pageReader.readPage(URL("https://www.facebook.com/$pageId/about"))
             return ScrapeResult(
-                PUBLIC_KEY_REGEX.find(content)!!.groupValues[1],
+                Regex(PUBLIC_KEY_REGEX).find(content)!!.groupValues[1],
                 content,
                 content.contains(FACEBOOK_VERIFIED_STRING)
             )
@@ -131,8 +131,7 @@ open class Validator(
     )
 
     companion object {
-        val TEST_MESSAGE = "test message".toByteArray()
-        val PUBLIC_KEY_REGEX = Regex("QRSign&lt;([^&;\\s]{44})&gt;")
+        const val PUBLIC_KEY_REGEX = "QRSign&lt;([^&;\\s]{44})&gt;"
         const val FACEBOOK_VERIFIED_STRING = "\\u003Cspan>A blue verification badge confirms that this is an authentic Page for this public figure, media company or brand.\\u003C/span>\n"
     }
 }
