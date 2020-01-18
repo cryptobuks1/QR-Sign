@@ -11,6 +11,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimaryDark"
@@ -18,7 +19,17 @@
         app:layout_constraintBottom_toBottomOf="@+id/zxing">
 
         <TextView
-            android:id="@+id/text_dashboard"
+            android:id="@+id/text_scan_result"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/text_found_qr_code"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"

@@ -8,7 +8,7 @@ import danvim.qrsign.utils.Validator
 import danvim.qrsign.utils.VerifiedStatus
 
 class ScanViewModel : ViewModel() {
-    val text = MutableLiveData<String>().apply { value = "" }
+    val scanResult = MutableLiveData<String>().apply { value = "" }
     val foundQRCode = MutableLiveData<Boolean>().apply { value = false }
     val message = MutableLiveData<SignedMessage?>()
     val validationResult = MutableLiveData<Validator.ValidationResult?>()

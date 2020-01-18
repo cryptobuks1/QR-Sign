@@ -11,3 +11,28 @@ However, it is harder to verify physical documents, traditional means of stamps 
 QR Sign uses the ED25519 signature cryptography to generate a key pair for the average person to easily sign any physical documents. The public key is placed on a authoritative site, such as a Facebook page or a basic web page for the verification process to take place. The private key is kept on the phone and can be synced onto the Cloud. The private key is used to sign the message with a date and the public key location URL. The result is converted into a QR Code graphics with textual description of the code for users to scan. The QR Code should be placed alongside the physical material with the textual description intact for visual verification.
 
 The user is required to scan the code and compare the message on the physical material to verify that the code is correctly used for the right material. It is important that the physical document do not strip away the message and date of notice as the app can only verify whether the QR Code is a valid signature.
+
+## Progress
+
+### Phase 0
+
+- [x] Draft message data structure
+- [x] Complete sign and validation methods with unit tests
+- [ ] Complete UI scanning and validation process
+  - [ ] Facebook page integration, detect verified check mark
+  - [ ] Personal web page integration
+- [ ] Generate key pairs in app
+- [ ] Sign message and generate QR Code signature
+
+### Phase 1
+
+- [ ] Draw QR Code into graphic with app icon, message, date
+- [ ] Save generated messages in history
+- [ ] Sync key pairs to Google
+- [ ] In-app help
+- [ ] On-board graphics and help
+
+### Phase 2
+
+- [ ] Safely export key pair to base64 requiring PIN/fingerprint
+- [ ] Import ED25519 key pair from base64

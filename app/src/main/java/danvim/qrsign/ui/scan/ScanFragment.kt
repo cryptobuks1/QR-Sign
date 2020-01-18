@@ -46,7 +46,7 @@ class ScanFragment : Fragment(), ZXingScannerView.ResultHandler, CoroutineScope 
             return
         }
         val content = URLDecoder.decode(urlPartition[1], "UTF-8")
-        scanViewModel.text.value = content
+        scanViewModel.scanResult.value = content
         launch {
             val (message, validationResult) = withContext(Dispatchers.IO) {
                 val validator = Validator()
@@ -85,10 +85,9 @@ class ScanFragment : Fragment(), ZXingScannerView.ResultHandler, CoroutineScope 
         scanViewModel =
             ViewModelProviders.of(this).get(ScanViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_scan, container, false)
-        val textView: TextView = root.findViewById(R.id.text_dashboard)
-        scanViewModel.text.observe(this, Observer {
-            textView.text = it
-        })
+        val textScanResult: TextView = root.findViewById(R.id.text_scan_result)
+        scanViewModel.scanResult.observe(this, Observer { textScanResult.text = it })
+        scanViewModel.foundQRCode.observe(this, Observer { text_found_qr_code.text = if (it) "true" else "false" })
 
         return root
     }
